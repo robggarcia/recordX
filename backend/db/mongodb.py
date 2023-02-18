@@ -1,11 +1,13 @@
 from pymongo import MongoClient
+from dotenv import load_dotenv
 import os
 import json
 from typing import Any
 from bson import ObjectId
 
-
-MONGO_PW = os.environ['MONGO_PW']
+load_dotenv()
+MONGO_PW = os.getenv('MONGO_PW')
+print(MONGO_PW)
 MONGO_URI = f'mongodb+srv://yoshi:{MONGO_PW}@cluster0.tvnuyyw.mongodb.net/?retryWrites=true&w=majority'
 
 # set a 5-second connection timeout
