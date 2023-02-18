@@ -26,8 +26,10 @@ def register_user(username, email, password):
     return users
 
 
-def update_user(id, data):
-    return user
+def update_user(user_id, data):
+    user_col = get_user_collection()
+    updated = user_col.update_one({"_id": ObjectId(user_id)}, {"$set": data})
+    return updated
 
 
 def send_message(id, to_user, message):

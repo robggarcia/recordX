@@ -17,5 +17,8 @@ def get_single_record(record_id):
     return album
 
 
-def update_record(id, data):
+def update_record(record_id, data):
     record_col = get_record_collection()
+    updated = record_col.update_one(
+        {"_id": ObjectId(record_id)}, {"$set": data})
+    return updated
