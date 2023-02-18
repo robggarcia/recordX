@@ -39,3 +39,9 @@ class MongoJSONEncoder(json.JSONEncoder):
         # if isinstance(o, datetime):
         #     return str(o)
         return json.JSONEncoder.default(self, o)
+
+
+def create_object(data):
+    data_json = MongoJSONEncoder().encode(list(data))
+    data_obj = json.loads(data_json)
+    return data_obj

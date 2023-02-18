@@ -1,12 +1,6 @@
-from db.mongodb import get_record_collection, MongoJSONEncoder
+from db.mongodb import get_record_collection, create_object
 from bson import ObjectId, json_util
 import json
-
-
-def create_object(data):
-    data_json = MongoJSONEncoder().encode(list(data))
-    data_obj = json.loads(data_json)
-    return data_obj
 
 
 def get_all_records():
