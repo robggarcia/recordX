@@ -1,5 +1,6 @@
 from mongodb import db
 import pandas as pd
+import bcrypt
 
 sheet_id = "1ZlsxceBGl1kIs5-OA-PRI9dW3S1FdNgOASq2mkMrZck"
 sheet_name = "Sample_Record_Data"
@@ -48,6 +49,13 @@ user_data = [
         "admin": True
     }
 ]
+
+for user in user_data:
+    user["password"] = bcrypt.hashpw(
+        user["password"].encode('utf-8'), bcrypt.gensalt())
+
+print(user_data)
+
 
 try:
     db.drop_collection("user_collection")
