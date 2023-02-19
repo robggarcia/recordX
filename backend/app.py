@@ -15,6 +15,7 @@ from modules.records import get_all_records, get_single_record, create_record, u
 from modules.users import get_all_users, get_single_user, update_user, register_user, login_user, delete_user
 from modules.token_required import token_required
 from modules.messages import get_messages, send_message
+from modules.favorites import get_favorites, add_favorite, delete_favorite
 
 load_dotenv()
 
@@ -37,15 +38,15 @@ def health():
 
 @app.route('/api/records', methods=['GET', 'POST'])
 def records_route():
-    user_val = token_required()
-    try:
-        username = user_val["username"]
-    except:
-        return {"success": False, "message": "Invalid token provided"}
     if request.method == 'GET':
         records = get_all_records()
         return {"success": True, "data": records}
     if request.method == 'POST':
+        user_val = token_required()
+        try:
+            username = user_val["username"]
+        except:
+            return {"success": False, "message": "Invalid token provided"}
         try:
             user_val["admin"]
             data = request.get_json()
@@ -217,6 +218,7 @@ def messages():
         messages = get_messages(from_id)
         return {'success': True, 'username': from_user, 'data': messages}
     if request.method == 'POST':
+        # send a message to a specific user
         to_user = request.get_json()["to_user"]
         message = request.get_json()["message"]
         print(from_user, to_user, message)
@@ -225,6 +227,33 @@ def messages():
             return {"success": True, "message": "Message sent successfuly"}
         else:
             return {"success": False, "message": "Unable to send message"}, 404
+
+
+@app.route('/api/records/favorites', methods=['GET', 'POST', 'DELETE'])
+def favorite():
+    user_val = token_required()
+    try:
+        user_id = user_val["_id"]["$oid"]
+    except:
+        return {"success": False, "message": "Invalid token provided"}
+    if request.method == 'GET':
+        # get list of all favorite albums
+        favorites = get_favorites(user_id)
+        return {'success': True, 'data': favorites}
+    if request.method == 'POST':
+        record_id = request.get_json()['record_id']
+        result = add_favorite(user_id, record_id)
+        if result.modified_count > 0:
+            return {"success": True, "message": "Album added to favorites"}
+        else:
+            return {"success": False, "message": "Unable to add to favorites"}, 404
+    if request.method == 'DELETE':
+        record_id = request.get_json()['record_id']
+        result = delete_favorite(user_id, record_id)
+        if result.modified_count > 0:
+            return {"success": True, "message": "Album removed to favorites"}
+        else:
+            return {"success": False, "message": "Unable to remove from favorites"}, 404
 
 
 @app.errorhandler(404)

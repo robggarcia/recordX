@@ -20,7 +20,6 @@ def send_message(from_user, to_user, message):
                                       "$push": {'messages': data}})
     except:
         # otherwise create a new array for the user
-        data = [{'from_user': from_user, 'message': message}]
         updated = user_col.update_one({"username": to_user}, {
-                                      "$set": {'messages': data}})
+                                      "$set": {'messages': [data]}})
     return updated
