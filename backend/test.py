@@ -16,7 +16,6 @@ token = jwt.encode({"email": email, "username": username},
 
 token = jwt.encode(
     {"_id": _id, "email": email, "username": username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=45)}, JWT_SECRET, algorithm="HS256")
-print(type(token))
 data = jwt.decode(token, JWT_SECRET, algorithms="HS256")
 
 

@@ -13,7 +13,6 @@ JWT_SECRET = os.getenv("JWT_SECRET")
 # decorator for verifying the JWT
 def token_required():
     token = None
-    # jwt is passed in the request header
     try:
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
@@ -27,7 +26,7 @@ def token_required():
         print(user)
         return user
     except:
-        return {'success': False, '_id': 0}
+        return {'success': False, '_id': 0, "message": "Invalid Token"}
 
     # @wraps(f)
     # def decorated(*args, **kwargs):

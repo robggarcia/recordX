@@ -14,6 +14,7 @@ from db.mongodb import get_record_collection, get_user_collection
 from modules.records import get_all_records, get_single_record, create_record, update_record, delete_record
 from modules.users import get_all_users, get_single_user, update_user, register_user, login_user, delete_user
 from modules.token_required import token_required
+from modules.messages import get_messages, send_message
 
 load_dotenv()
 
@@ -37,6 +38,10 @@ def health():
 @app.route('/api/records', methods=['GET', 'POST'])
 def records_route():
     user_val = token_required()
+    try:
+        username = user_val["username"]
+    except:
+        return {"success": False, "message": "Invalid token provided"}
     if request.method == 'GET':
         records = get_all_records()
         return {"success": True, "data": records}
@@ -54,6 +59,10 @@ def records_route():
 @app.route('/api/records/<record_id>', methods=['GET', 'PATCH', 'DELETE'])
 def album_route(record_id):
     user_val = token_required()
+    try:
+        username = user_val["username"]
+    except:
+        return {"success": False, "message": "Invalid token provided"}
     if request.method == 'GET':
         album = get_single_record(record_id)
         return {"success": True, "data": album}
@@ -92,6 +101,10 @@ def users_route():
 @app.route('/api/users/<user_id>', methods=['GET', 'PATCH', 'DELETE'])
 def single_user_route(user_id):
     user_val = token_required()
+    try:
+        username = user_val["username"]
+    except:
+        return {"success": False, "message": "Invalid token provided"}
     if user_val:
         if request.method == 'GET':
             user = get_single_user(user_id)
@@ -189,6 +202,29 @@ def login():
 def logout():
     session["email"] = None
     return {'success': True, 'message': 'User logged out'}
+
+
+@app.route('/api/messages', methods=['GET', 'POST', 'PATCH', 'DELETE'])
+def messages():
+    user_val = token_required()
+    try:
+        from_user = user_val["username"]
+    except:
+        return {"success": False, "message": "Invalid token provided"}
+    if request.method == 'GET':
+        # get all messages from a user
+        from_id = user_val["_id"]["$oid"]
+        messages = get_messages(from_id)
+        return {'success': True, 'username': from_user, 'data': messages}
+    if request.method == 'POST':
+        to_user = request.get_json()["to_user"]
+        message = request.get_json()["message"]
+        print(from_user, to_user, message)
+        updated = send_message(from_user, to_user, message)
+        if updated.modified_count > 0:
+            return {"success": True, "message": "Message sent successfuly"}
+        else:
+            return {"success": False, "message": "Unable to send message"}, 404
 
 
 @app.errorhandler(404)
